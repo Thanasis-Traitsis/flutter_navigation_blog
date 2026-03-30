@@ -13,7 +13,7 @@ So Flutter doesn't use them as runtime objects. Instead, it maintains three para
 - **The Element tree:** the live runtime instances. This is where `state` lives and where `BuildContext` comes from.
 - **The RenderObject tree:** the layout and painting engine.
 
-[[!! BOARD WITH THE CARDS]]
+![Board](https://github.com/Thanasis-Traitsis/flutter_navigation_blog/blob/main/Screenshot%202026-03-30%20at%2015.55.54.JPG?raw=true)
 
 The most important line in Flutter's source code is this one: 
 ``` dart
@@ -55,7 +55,7 @@ context.findAncestorStateOfType<NavigatorState>()
 ```
 This is a linear walk. Starting from the element that owns the context, Flutter climbs the element tree one node at a time, checking each ancestor to see if it holds a `NavigatorState`. The moment it finds one, it stops and returns it. If it reaches the root without finding one, it throws.
 
-[[ BOARD SHOWING THE ANCESTOR WALK ]]
+![Ancestor Walk](https://github.com/Thanasis-Traitsis/flutter_navigation_blog/blob/main/Screenshot%202026-03-30%20at%2016.05.21.JPG?raw=true)
 
 The walk is **O(depth)**, it visits every node between the call site and the `Navigator`. But this is happening in microseconds so you don't have to worry about any performance issue no matter how "deep" your starting context lives.
 
@@ -89,7 +89,7 @@ The **Route Stack** is a plain ordered list of `Route` objects living inside `Na
 
 Here's what that list looks like after a typical user journey:
 
-[[ BOARD SHOWING HOW NAVIGATION WORKS WITH SCREENS ]]
+![Route Stack](https://github.com/Thanasis-Traitsis/flutter_navigation_blog/blob/main/Screenshot%202026-03-30%20at%2016.15.27.JPG?raw=true)
 
 Notice that `HomeRoute` and `ProfileRoute` are never destroyed when something is pushed on top of them. They stay mounted in the stack the entire time. This is intentional, it's what makes the back swipe gesture feel instant, and it's what lets you `pop` back without any rebuild cost.
 
@@ -99,8 +99,6 @@ Notice that `HomeRoute` and `ProfileRoute` are never destroyed when something is
 The **Overlay** is NavigatorState's rendering layer. While the Route Stack is the *logical list* of where you are in the app, the Overlay is the *visual layer* that actually puts pixels on screen.
 
 Every `Route` in the stack has a corresponding `OverlayEntry`, which is a slot in the Overlay that renders that route's widget tree. The Overlay stacks these entries in z-order, so the topmost route in the stack always renders on top of everything else.
-
-[[ BOARD SHOWING THE TWO TABLES NEXT TO EACH OTHER ]]
 
 This separation is what makes transition animations work. When you push a new route, both the outgoing and incoming routes have active OverlayEntry objects simultaneously. Flutter animates between them at the Overlay level. The old screen slides or fades out while the new one slides or fades in, and only once the animation completes does the old entry become inactive.
 
@@ -112,8 +110,6 @@ Navigator.of(context).push(
 );
 ```
 `NavigatorState` executes five steps in sequence:
-
-[[ BOARD SHOWING THE 5 STEPS ]]
 
 The footnote at the bottom is worth highlighting: `pop` is literally this sequence in reverse. The animation controller plays backwards, the old entry reactivates, and the top route gets removed from `_history`. No rebuilds, no reconstruction. Just the same entries, animated the other way.
 
